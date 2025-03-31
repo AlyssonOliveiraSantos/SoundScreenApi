@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Models.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ public class ScreenSoundContext: DbContext
 {
     public DbSet<Artista> Artistas { get; set; }
     public DbSet<Musica> Musicas { get; set; }
+    public DbSet<Genero> Generos { get; set; }
 
     private string connectionString = "Server=ALYSSON; Database=Filmes; Trusted_Connection=True; TrustServerCertificate=True;";
 
@@ -20,5 +22,16 @@ public class ScreenSoundContext: DbContext
         optionsBuilder
             .UseSqlServer(connectionString)
             .UseLazyLoadingProxies(); 
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Artista>()
+            .HasMany(a => a.Musicas)
+            .WithOne(m => m.Artista)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Musica>()
+            .HasMany(m => m.Generos)
+            .WithMany(g => g.Musicas);
     }
 }
