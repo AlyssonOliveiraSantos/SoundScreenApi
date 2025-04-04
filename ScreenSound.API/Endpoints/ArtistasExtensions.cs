@@ -64,8 +64,8 @@ namespace ScreenSound.API.Endpoints
                 {
                     return Results.NotFound();
                 }
-                artistaDal.Nome = artista.Nome;
-                artistaDal.Bio = artista.Bio;
+                artistaDal.Nome = artista.nome;
+                artistaDal.Bio = artista.bio;
 
                 dal.Atualizar(artistaDal);
                 return Results.Ok();

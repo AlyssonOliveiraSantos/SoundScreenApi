@@ -59,8 +59,8 @@ namespace ScreenSound.API.Endpoints
                 {
                     return Results.NotFound();
                 }
-                musicaDal.Nome = musica.Nome;
-                musicaDal.AnoLancamento = musica.AnoLancamento;
+                musicaDal.Nome = musica.nome;
+                musicaDal.AnoLancamento = musica.anoLancamento;
                 dal.Atualizar(musicaDal);
                 return Results.NoContent();
             });
