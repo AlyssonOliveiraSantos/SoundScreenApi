@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using ScreenSound.API.Requests;
+using ScreenSound.API.Responses;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
 using ScreenSound.Shared.Models.Modelos;
@@ -15,7 +16,12 @@ namespace ScreenSound.API.Endpoints
 
             app.MapGet("/Musicas", ([FromServices] DAL<Musica> dal) =>
             {
-                return Results.Ok(dal.Listar());
+                var listaDeMusicas = dal.Listar();
+                if (listaDeMusicas == null)
+                {
+                    return Results.NotFound();
+                }
+                return Results.Ok(EntityListToResponseList(listaDeMusicas));
             });
 
             app.MapGet("/Musicas/{nome}", ([FromServices] DAL<Musica> dal, string nome) =>
@@ -25,18 +31,18 @@ namespace ScreenSound.API.Endpoints
                 {
                     return Results.NotFound();
                 }
-                return Results.Ok(musica);
+                return Results.Ok(EntityListToResponseList(musica));
             });
 
-            app.MapPost("/Musicas", ([FromServices] DAL<Musica> dal, [FromServices] DAL<Genero> dalGenero, [FromBody] MusicaRequest musicaRequest,) =>
+            app.MapPost("/Musicas", ([FromServices] DAL<Musica> dal, [FromServices] DAL<Genero> dalGenero, [FromBody] MusicaRequest musicaRequest) =>
             {
                 if (musicaRequest != null)
                 {
                     Musica musica = new Musica(musicaRequest.nome)
                     {
                         AnoLancamento = musicaRequest.anoLancamento,
-                        ArtistaId = musicaRequest.ArtistaId,
-                        Generos = musicaRequest is not null ? GeneroRequestConverter(musicaRequest.generos) : new List<Genero>()
+                        ArtistaId = musicaRequest.artistaId,
+                        Generos = musicaRequest is not null ? GeneroRequestConverter(musicaRequest.generos, dalGenero) : new List<Genero>()
                     };
 
                     dal.Adicionar(musica);
@@ -46,7 +52,7 @@ namespace ScreenSound.API.Endpoints
 
             });
 
-            app.MapPut("/Musicas/{id}", ([FromServices] DAL<Musica> dal, [FromBody] Musica musica) =>
+            app.MapPut("/Musicas", ([FromServices] DAL<Musica> dal, [FromBody] MusicaRequestEdit musica) =>
             {
                 var musicaDal = dal.RecuperarPor(m => m.Id == musica.Id);
                 if (musicaDal == null)
@@ -60,7 +66,9 @@ namespace ScreenSound.API.Endpoints
             });
         }
 
-        private static ICollection<Genero> GeneroRequestConverter(ICollection<GeneroRequest> generos,
+
+
+        private static List<Genero> GeneroRequestConverter(ICollection<GeneroRequest> generos,
                                                                      DAL<Genero> dalGenero)
         {
             var listaDeGeneros = new List<Genero>();
@@ -85,6 +93,17 @@ namespace ScreenSound.API.Endpoints
                 Descricao = generoRequest.Descricao,
 
             };
+        }
+
+        private static MusicasResponse EntityToResponse(Musica musica)
+        {
+           var MusicaResponse = new MusicasResponse(musica.Id, musica.Nome, musica.ArtistaId, musica.Artista.Nome, musica.AnoLancamento);
+            return MusicaResponse;
+        }
+
+        private static ICollection<MusicasResponse> EntityListToResponseList(IEnumerable<Musica> listaMusicas)
+        {
+            return listaMusicas.Select(a => EntityToResponse(a)).ToList();
         }
     }
 }

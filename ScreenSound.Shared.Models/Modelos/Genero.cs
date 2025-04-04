@@ -9,7 +9,7 @@ namespace ScreenSound.Shared.Models.Modelos
 {
     public class Genero
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string? Nome { get; set; }
         public string? Descricao { get; set; }
         public virtual ICollection<Musica> Musicas { get; set; }
