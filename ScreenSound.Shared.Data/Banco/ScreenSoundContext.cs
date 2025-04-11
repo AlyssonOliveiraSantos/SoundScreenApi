@@ -15,7 +15,7 @@ public class ScreenSoundContext: DbContext
     public DbSet<Musica> Musicas { get; set; }
     public DbSet<Genero> Generos { get; set; }
 
-    private string connectionString = "Server=ALYSSON; Database=Filmes; Trusted_Connection=True; TrustServerCertificate=True;";
+    private string connectionString = "Server=INF05\\MSSQLSERVERR; Database=Mafix; User Id=sa; Password=teste123; TrustServerCertificate=True";
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

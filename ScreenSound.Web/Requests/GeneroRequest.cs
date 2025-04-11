@@ -1,4 +1,4 @@
-﻿namespace ScreenSound.API.Requests
+﻿namespace ScreenSound.Web.Requests
 {
     public record GeneroRequest(string Nome, string? Descricao = null);
 }

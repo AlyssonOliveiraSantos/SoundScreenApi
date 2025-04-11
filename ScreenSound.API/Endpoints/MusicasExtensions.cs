@@ -97,7 +97,8 @@ namespace ScreenSound.API.Endpoints
 
         private static MusicasResponse EntityToResponse(Musica musica)
         {
-           var MusicaResponse = new MusicasResponse(musica.Id, musica.Nome, musica.ArtistaId, musica.Artista.Nome, musica.AnoLancamento);
+
+            var MusicaResponse = new MusicasResponse(musica.Id, musica.Nome, musica.ArtistaId, musica.Artista.Nome, musica.AnoLancamento);
             return MusicaResponse;
         }
 

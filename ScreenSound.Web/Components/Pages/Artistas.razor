@@ -1,0 +1,25 @@
+﻿@page "/Artistas"
+@inject ArtistasApi artistaApi;
+
+<h3>Artistas</h3>
+
+@if (artistas is not null)
+{
+    <MudGrid Gutter="GutterSize.Small">
+        @foreach (var artista in artistas)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="2">
+                <CardArtista Artista="artista" />
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private IEnumerable<ArtistasResponse>? artistas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        artistas = await artistaApi.GetArtistasAsync();
+    } 
+}
