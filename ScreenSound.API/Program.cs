@@ -6,7 +6,24 @@ using ScreenSound.Shared.Models.Modelos;
 using System.Data.SqlTypes;
 using System.Text.Json.Serialization;
 
+
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("https://localhost:7222")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddDbContext<ScreenSoundContext>();
 builder.Services.AddTransient<DAL<Artista>>();
@@ -22,5 +39,7 @@ app.AddEndpointsMusicas();
 app.AddEndpointsGeneros();
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors("_myAllowSpecificOrigins");
+
 
 app.Run();

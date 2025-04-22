@@ -1,8 +1,6 @@
-﻿@using ScreenSound.Web.Layout
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 
-
-<MudThemeProvider IsDarkMode="true" Theme="currentTheme" />
+<MudThemeProvider Theme="currentTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -21,6 +19,6 @@
 @code {
     private MudTheme currentTheme = new MudTheme()
         {
-            PaletteDark = ScreendsoundPallete.CreatePallete
+            Palette = ScreendsoundPallete.CreatePallete
         };
 }

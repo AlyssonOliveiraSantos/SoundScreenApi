@@ -5,17 +5,7 @@ html, body {
 div.mud-main-content.main-content {
     background: linear-gradient(180deg, #96F 0%, #000 100%) !important;
     margin-top: 64px;
-    padding: 20px;
     min-height: 100vh;
-}
-header.mud-appbar.mud-appbar-fixed-top.mud-elevation-2.mud-theme-surface {
-    background-color: rgba(55,55,64,1);
-}
-
-- > quebra de linha aqui
-
-header.mud-appbar.mud-appbar-fixed-top.mud-elevation-2.mud-theme-surface {
-    background-color: rgba(55,55,64,1);
 }
 
 h1:focus {
@@ -117,6 +107,3 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
-
-
-

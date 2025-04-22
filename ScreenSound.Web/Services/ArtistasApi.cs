@@ -1,4 +1,6 @@
-﻿using ScreenSound.Web.Responses;
+﻿using ScreenSound.Web.Requests;
+using ScreenSound.Web.Responses;
+using System.Net.Http.Json;
 
 namespace ScreenSound.Web.Services
 {
@@ -16,6 +18,11 @@ namespace ScreenSound.Web.Services
         {
             return await
                 _httpClient.GetFromJsonAsync<IEnumerable<ArtistasResponse>>("Artistas");
+        }
+
+        public async Task AddArtistaAsync(ArtistaRequest artista)
+        {
+            await _httpClient.PostAsJsonAsync("artistas", artista);
         }
     }
 }
