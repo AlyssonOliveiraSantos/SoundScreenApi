@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Client;
 using ScreenSound.API.Requests;
 using ScreenSound.API.Responses;
@@ -34,15 +35,36 @@ namespace ScreenSound.API.Endpoints
                 return Results.Ok(EntityToResponse(artista));
             });
 
-            app.MapPost("/Artistas", ([FromServices] DAL<Artista> dal, [FromBody] ArtistaRequest artistaRequest) =>
+            app.MapPost("/Artistas", async ([FromServices]IHostEnvironment env,  [FromServices] DAL<Artista> dal, [FromBody] ArtistaRequest artistaRequest) =>
             {
-                Artista artista = new Artista(artistaRequest.nome, artistaRequest.bio);
-                if (artista != null)
+
+                if(artistaRequest.fotoPerfil != null)
                 {
-                    dal.Adicionar(artista);
-                    return Results.Created($"/Artistas/{artista.Id}", artista);
+                    var nome = artistaRequest.nome.Trim();
+                    var imagemArtista = DateTime.Now.ToString("ddMMyyyyhhss") + "." + nome + ".jpeg";
+
+                    var path = Path.Combine(env.ContentRootPath,
+            "wwwroot", "FotosPerfil", imagemArtista);
+
+                    using MemoryStream ms = new MemoryStream(Convert.FromBase64String(artistaRequest.fotoPerfil!));
+                    using FileStream fs = new(path, FileMode.Create);
+                    await ms.CopyToAsync(fs);
+
+                    var artistaFoto = new Artista(artistaRequest.nome, artistaRequest.bio)
+                    {
+                        FotoPerfil = $"/FotosPerfil/{imagemArtista}"
+                    };
+
+                    dal.Adicionar(artistaFoto);
+                    return Results.Ok();
+
                 }
-                return Results.BadRequest();
+
+                var artista = new Artista(artistaRequest.nome, artistaRequest.bio);
+                dal.Adicionar(artista);
+                return Results.Ok();
+
+
             });
 
             app.MapDelete("/Artistas/{id}", ([FromServices] DAL<Artista> dal, int id) =>
@@ -72,14 +94,14 @@ namespace ScreenSound.API.Endpoints
             });
             #endregion
         }
-        private static ICollection<ArtistasResponse> EntityListToResponseList(IEnumerable<Artista> listaDeArtistas)
+        private static ICollection<ArtistaResponse> EntityListToResponseList(IEnumerable<Artista> listaDeArtistas)
         {
             return listaDeArtistas.Select(a => EntityToResponse(a)).ToList();
         }
 
-        private static ArtistasResponse EntityToResponse(Artista artista)
+        private static ArtistaResponse EntityToResponse(Artista artista)
         {
-            var artistaResponse = new ArtistasResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil);
+            var artistaResponse = new ArtistaResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil);
             return artistaResponse;
         }
     }

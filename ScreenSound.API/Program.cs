@@ -34,12 +34,15 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCors("_myAllowSpecificOrigins");
+
+app.UseStaticFiles();
 app.AddEndpointsArtistas();
 app.AddEndpointsMusicas();
 app.AddEndpointsGeneros();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseCors("_myAllowSpecificOrigins");
+
 
 
 app.Run();

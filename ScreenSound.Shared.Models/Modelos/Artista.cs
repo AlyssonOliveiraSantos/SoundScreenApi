@@ -1,10 +1,12 @@
-﻿namespace ScreenSound.Modelos; 
+﻿namespace ScreenSound.Modelos;
 
-public class Artista 
+public class Artista
 {
     public virtual ICollection<Musica> Musicas { get; set; } = new List<Musica>();
+    public Artista()
+    {
 
-    public Artista() { }
+    }
     public Artista(string nome, string bio)
     {
         Nome = nome;

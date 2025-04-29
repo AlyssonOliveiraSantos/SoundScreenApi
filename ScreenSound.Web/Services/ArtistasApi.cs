@@ -14,15 +14,36 @@ namespace ScreenSound.Web.Services
         }
 
 
-        public async Task<IEnumerable<ArtistasResponse>?> GetArtistasAsync()
+        public async Task<IEnumerable<ArtistaResponse>?> GetArtistasAsync()
         {
             return await
-                _httpClient.GetFromJsonAsync<IEnumerable<ArtistasResponse>>("Artistas");
+                _httpClient.GetFromJsonAsync<IEnumerable<ArtistaResponse>>("Artistas");
         }
 
         public async Task AddArtistaAsync(ArtistaRequest artista)
         {
             await _httpClient.PostAsJsonAsync("artistas", artista);
+        }
+
+        public async Task EditarArtistaAsync(ArtistaRequestEdit artista)
+        {
+            await _httpClient.PutAsJsonAsync($"artistas", artista);
+        }
+
+        public async Task DeleteArtistaAsync(int id)
+        {
+            await _httpClient.DeleteAsync($"artistas/{id}");
+                
+        }
+
+        public async Task UpdateArtistaAsync(ArtistaRequestEdit artista)
+        {
+            await _httpClient.PutAsJsonAsync($"artistas", artista);
+        }
+
+        public async Task<ArtistaResponse?> GetArtistaPorNomeAsync(string nome)
+        {
+            return await _httpClient.GetFromJsonAsync<ArtistaResponse>($"artistas/{nome}");
         }
     }
 }

@@ -20,7 +20,13 @@
                       Required="true"
                       RequiredError="Campo obrigatório." />
 
-        <div class="d-flex align-center justify-space-between mt-4">
+        <div class="d-flex justify-space-between mt-4">
+            <MudButton Variant="Variant.Filled"
+                       @onclick="Voltar"
+                       Color="Color.Primary">
+                Voltar
+            </MudButton>
+
             <MudButton Variant="Variant.Filled"
                        @onclick="Cadastrar"
                        Color="Color.Primary"
@@ -29,6 +35,19 @@
             </MudButton>
         </div>
 
+        <MudImage Class="mt-4" src="@fileImage" />
+        <MudFileUpload T="IBrowserFile" Accept=".jpeg" FilesChanged="UploadFile">
+            <ButtonTemplate>
+                <MudButton HtmlTag="label"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.PhotoCamera"
+                           for="@context">
+                    Foto de Perfil
+                </MudButton>
+            </ButtonTemplate>
+        </MudFileUpload>
+
     </MudForm>
 </MudPaper>
 
@@ -36,11 +55,40 @@
     private string? nome;
     private string? biografia;
 
+    private string? fileImage;
+    private string? fotoPerfil;
+
     private async Task Cadastrar()
     {
-        var request = new ArtistaRequest(nome!, biografia!);
+        if (fotoPerfil == "" || fotoPerfil == null )
+        {
+            var requestSemfoto = new ArtistaRequest(nome!, biografia!, null);
+            await artistasAPI.AddArtistaAsync(requestSemfoto);
+            navigationManager.NavigateTo("/Artistas");
+        }
+        var request = new ArtistaRequest(nome!, biografia!, fotoPerfil);
         await artistasAPI.AddArtistaAsync(request);
         navigationManager.NavigateTo("/Artistas");
+    }
+
+    private void Voltar()
+    {
+        navigationManager.NavigateTo("/Artistas");
+    }
+
+    private async Task UploadFile(IBrowserFile file)
+    {
+        long maxFileSize = 1024 * 1024 * 15;
+        var format = "image/jpeg";
+        var resizedImage = await file.RequestImageFileAsync(format, 200, 200);
+
+        using var fileStream = resizedImage.OpenReadStream();
+        using var memoryStream = new MemoryStream();
+        await fileStream.CopyToAsync(memoryStream);
+
+        var imageUpload = Convert.ToBase64String(memoryStream.ToArray());
+        fileImage = $"data:{format};base64,{imageUpload}";
+        fotoPerfil = imageUpload;
     }
 
 }

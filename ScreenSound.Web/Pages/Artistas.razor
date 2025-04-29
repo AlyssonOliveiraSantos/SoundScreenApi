@@ -2,14 +2,18 @@
 @using ScreenSound.Web.Responses
 @inject ArtistasApi artistaApi;
 
-<h3>Artistas</h3>
+<MudStack Class="mt-4 mb-4" Row="true" Justify="Justify.SpaceBetween">
+    <MudText Class="mb-4" Typo="Typo.h4">Artistas cadastrados</MudText>
+    <MudPagination Count="@totalPaginas" SelectedChanged="PaginaMudou"></MudPagination>
+</MudStack>
 
-@if (artistas is not null)
+
+@if (artistasPorPagina is not null)
 {
     <MudGrid Gutter="GutterSize.Small">
-        @foreach (var artista in artistas)
+        @foreach (var artista in artistasPorPagina)
         {
-            <MudItem xs="12" sm="6" md="4" lg="2">
+            <MudItem xs="3">
                 <CardArtista Artista="artista" />
             </MudItem>
         }
@@ -17,10 +21,35 @@
 }
 
 @code {
-    private IEnumerable<ArtistasResponse>? artistas;
+
+    private IEnumerable<ArtistaResponse>? artistas;
+
+    private int tamanho = 8;
+    private int totalItens;
+    private int totalPaginas;
+
+    private ICollection<ArtistaResponse>? artistasPorPagina;
 
     protected override async Task OnInitializedAsync()
     {
         artistas = await artistaApi.GetArtistasAsync();
-    } 
+
+        if (artistas is not null)
+        {
+            artistas = artistas.OrderByDescending(a => a.Id).ToList();
+            totalItens = artistas.Count();
+
+            totalPaginas = Convert.ToInt32(Math.Ceiling((totalItens * 1.0) / tamanho));
+            this.PaginaMudou(1);
+        }
+    }
+
+    private void PaginaMudou(int pageNumber)
+    {
+        var indice = pageNumber - 1;
+        artistasPorPagina = artistas!
+            .Skip(tamanho * indice)
+            .Take(tamanho)
+            .ToList();
+    }
 }
