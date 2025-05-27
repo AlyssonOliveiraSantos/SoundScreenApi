@@ -13,17 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.WithOrigins("https://localhost:7222")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
-});
-
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddDbContext<ScreenSoundContext>();
 builder.Services.AddTransient<DAL<Artista>>();
@@ -31,6 +20,16 @@ builder.Services.AddTransient<DAL<Musica>>();
 builder.Services.AddTransient<DAL<Genero>>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(
+    options => options.AddPolicy(
+        "_myAllowSpecificOrigins",
+        policy => policy.WithOrigins([builder.Configuration["BackendUrl"] ?? "https://localhost:7017",
+            builder.Configuration["FrontendUrl"] ?? "https://localhost:7222"])
+            .AllowAnyMethod()
+            .SetIsOriginAllowed(pol => true)
+            .AllowAnyHeader()
+            .AllowCredentials()));
 
 var app = builder.Build();
 

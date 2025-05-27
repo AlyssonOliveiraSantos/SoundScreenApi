@@ -1,6 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Data.Modelos;
 using ScreenSound.Shared.Models.Modelos;
 using System;
 using System.Collections.Generic;
@@ -9,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ScreenSound.Banco;
-public class ScreenSoundContext: DbContext
+public class ScreenSoundContext: IdentityDbContext<PessoaComAcesso, PerfilDeAcesso, int>
 {
     public DbSet<Artista> Artistas { get; set; }
     public DbSet<Musica> Musicas { get; set; }
@@ -24,8 +26,11 @@ public class ScreenSoundContext: DbContext
             .UseLazyLoadingProxies(); 
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder) 
     {
+        base.OnModelCreating(modelBuilder);
+
+
         modelBuilder.Entity<Artista>()
             .HasMany(a => a.Musicas)
             .WithOne(m => m.Artista)
