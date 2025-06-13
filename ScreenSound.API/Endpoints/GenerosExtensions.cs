@@ -10,15 +10,22 @@ namespace ScreenSound.API.Endpoints
     public static class GenerosExtensions
     {
 
+
         public static void AddEndpointsGeneros(this WebApplication app)
         {
-            app.MapGet("/Generos", ([FromServices] DAL<Genero> dal) =>
+
+
+            var groupBuilder = app.MapGroup("generos").
+                RequireAuthorization().
+                WithTags("Gêneros");
+
+            groupBuilder.MapGet("", ([FromServices] DAL<Genero> dal) =>
             {
                 var generos = dal.Listar();
                 return Results.Ok(EntityListToResponseList(generos));
             });
 
-            app.MapGet("/Generos/{nome}", ([FromServices] DAL<Genero> dal, string nome) =>
+            groupBuilder.MapGet("{nome}", ([FromServices] DAL<Genero> dal, string nome) =>
             {
                 var generos = dal.ListarPor(g => g.Nome.ToUpper().Equals(nome.ToUpper()));
 
@@ -29,19 +36,19 @@ namespace ScreenSound.API.Endpoints
                 return Results.Ok(EntityListToResponseList(generos));
             });
 
-            app.MapPost("/Generos", ([FromServices] DAL<Genero> dal, GeneroRequest generoRequest) =>
+            groupBuilder.MapPost("", ([FromServices] DAL<Genero> dal, GeneroRequest generoRequest) =>
             {
                 if (generoRequest != null)
                 {
                     Genero genero = RequestToEntity(generoRequest);
                     dal.Adicionar(genero);
-                    return Results.Created($"/Generos/{genero.Id}", genero);
+                    return Results.Created($"{genero.Id}", genero);
                 }
                 return Results.BadRequest();
 
             });
 
-            app.MapPut("/Generos", ([FromServices] DAL<Genero> dal, GeneroRequestEdit generoRequest) => {
+            groupBuilder.MapPut("", ([FromServices] DAL<Genero> dal, GeneroRequestEdit generoRequest) => {
 
                 var generoDal = dal.RecuperarPor(g => g.Id == generoRequest.id);
                 if (generoDal == null)
@@ -54,7 +61,7 @@ namespace ScreenSound.API.Endpoints
                 return Results.NoContent();
             });
 
-            app.MapDelete("/Generos/{id}" , ([FromServices] DAL<Genero> dal, int id ) =>
+            groupBuilder.MapDelete("{id}" , ([FromServices] DAL<Genero> dal, int id ) =>
             {
                 var genero = dal.RecuperarPor(g => g.Id == id);
                 if (genero == null)
