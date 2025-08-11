@@ -1,8 +1,12 @@
-﻿namespace ScreenSound.Modelos;
+﻿using ScreenSound.Shared.Models.Modelos;
+
+namespace ScreenSound.Modelos;
 
 public class Artista
 {
     public virtual ICollection<Musica> Musicas { get; set; } = new List<Musica>();
+
+    public virtual ICollection<AvaliacaoArtista> Avaliacoes { get; set; } = new List<AvaliacaoArtista>();
     public Artista()
     {
 
@@ -23,7 +27,6 @@ public class Artista
     {
         Musicas.Add(musica);
     }
-
     public void ExibirDiscografia()
     {
         Console.WriteLine($"Discografia do artista {Nome}");

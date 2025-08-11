@@ -1,8 +1,6 @@
-﻿namespace ScreenSound.Web.Responses;
+﻿namespace ScreenSound.Web.Response;
+
 public record ArtistaResponse(int Id, string Nome, string Bio, string? FotoPerfil)
 {
-    public override string ToString()
-    {
-        return $"{this.Nome}";
-    }
-}
+    public double? classificacao { get; init; }
+};

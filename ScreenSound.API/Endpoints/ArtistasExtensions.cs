@@ -6,6 +6,9 @@ using ScreenSound.API.Requests;
 using ScreenSound.API.Responses;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Data.Modelos;
+using ScreenSound.Shared.Models.Modelos;
+using System.Security.Claims;
 
 namespace ScreenSound.API.Endpoints
 {
@@ -21,7 +24,8 @@ namespace ScreenSound.API.Endpoints
 
             groupBuilder.MapGet("", ([FromServices] DAL<Artista> dal) =>
             {
-                var listaDeArtistas = dal.Listar();
+                var listaDeArtistas = dal.ListarComInclude(a => a.Avaliacoes);
+
                 if (listaDeArtistas == null)
                 {
                     return Results.NotFound();
@@ -96,6 +100,71 @@ namespace ScreenSound.API.Endpoints
                 dal.Atualizar(artistaDal);
                 return Results.Ok();
             });
+
+            groupBuilder.MapPost("avaliacao", (
+                HttpContext context,
+                [FromBody] AvaliacaoArtistaRequest request,
+                [FromServices] DAL <PessoaComAcesso> dalPessoa,
+                [FromServices] DAL<AvaliacaoArtista> dalAvaliacao,
+                [FromServices] DAL < Artista > dalArtista) =>
+            {
+                var artista = dalArtista.RecuperarPor(a => a.Id == request.artistaId);
+                if (artista == null)
+                {
+                    return Results.NotFound();
+                }
+
+               var email =  context.User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value?? throw new InvalidOperationException("Usuário não autenticado");
+
+                var pessoa = dalPessoa.RecuperarPor(c => c.Email.Equals(email)) ?? throw new InvalidOperationException("Usuário não autenticado");
+                
+                var avaliacao = dalAvaliacao.RecuperarPor(a => a.ArtistaId == artista.Id && a.PessoaId == pessoa.Id);
+
+                if (avaliacao is null )
+                {
+                    AvaliacaoArtista avaliacaoArt = new AvaliacaoArtista
+                    {
+                        ArtistaId = artista.Id,
+                        PessoaId = pessoa.Id,
+                        Nota = request.nota
+                    };
+
+                    dalAvaliacao.Adicionar(avaliacaoArt);
+                }
+                else
+                {
+                    avaliacao.Nota = request.nota;
+                    dalAvaliacao.Atualizar(avaliacao);
+                }
+                return Results.Created();
+
+
+            });
+
+            groupBuilder.MapGet("/{id}/avaliacao", (
+                [FromServices] DAL<Artista> dalArtista,
+                [FromServices] DAL<AvaliacaoArtista> dalAvaliacao,
+                [FromServices] DAL<PessoaComAcesso> dalPessoa,
+                HttpContext context,
+                int id
+                ) =>
+            {
+               var artista =  dalArtista.RecuperarPor(a => a.Id == id);
+
+               var email = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email) ?? throw new InvalidOperationException("Não foi encontrado o email da pessoa logada.");
+
+                
+               var pessoa = dalPessoa.RecuperarPor(p => p.Email.Equals(email.Value)) ?? throw new InvalidOperationException("Não foi encontrado o email da pessoa logada.");
+
+               var avaliação = dalAvaliacao.RecuperarPor(a => a.ArtistaId == artista.Id && a.PessoaId == pessoa.Id);
+               if (avaliação == null)
+                {
+                    return Results.Ok(new AvaliacaoArtistaResponse(id, 0));
+                }
+                return Results.Ok(new AvaliacaoArtistaResponse(id, avaliação.Nota));
+
+            });
             #endregion
         }
         private static ICollection<ArtistaResponse> EntityListToResponseList(IEnumerable<Artista> listaDeArtistas)
@@ -105,7 +174,10 @@ namespace ScreenSound.API.Endpoints
 
         private static ArtistaResponse EntityToResponse(Artista artista)
         {
-            var artistaResponse = new ArtistaResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil);
+            var artistaResponse = new ArtistaResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil)
+            {
+                classificacao = artista.Avaliacoes.Any() ? artista.Avaliacoes.Average(a => a.Nota) : null
+            };
             return artistaResponse;
         }
     }

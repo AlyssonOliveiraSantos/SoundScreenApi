@@ -1,4 +1,5 @@
 ﻿@using MudBlazor
+@using ScreenSound.Web.Response
 @using ScreenSound.Web.Responses
 <MudCard>
     <MudCardMedia Image=@Imagem></MudCardMedia>
@@ -9,6 +10,7 @@
     </MudCardHeader>
     <MudCardContent>
         <MudText Typo="Typo.body2">@Artista!.Bio</MudText>
+        <MudRating ReadOnly SelectedValue="@(Convert.ToInt32(Artista?.classificacao ?? 0))" MaxValue="5" />
     </MudCardContent>
     <MudCardActions>
         <MudButton Color="Color.Warning"

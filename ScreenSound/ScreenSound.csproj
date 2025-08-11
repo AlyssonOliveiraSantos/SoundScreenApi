@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <None Include="..\ScreenSound.Web\Components\Pages\CardArtistas.razor" Link="CardArtistas.razor" />
+    <None Include="..\ScreenSound.Web\Pages\Component.razor" Link="Component.razor" />
   </ItemGroup>
 
   <ItemGroup>
